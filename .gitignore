@@ -62,3 +62,11 @@ tags
 /cmake
 /cscope
 abc.history
+
+test/
+ctest*
+DT*
+mult*
+temp*
+*.blif
+.DS_Store
