@@ -338,6 +338,9 @@ int Abc_NtkRefactor( Abc_Ntk_t * pNtk, int nNodeSizeMax, int nMinSaved, int nCon
     abctime clk, clkStart = Abc_Clock();
     int i, nNodes, RetValue = 1;
 
+    Abc_Obj_t * pNodeTemp;
+    int j;
+
     assert( Abc_NtkIsStrash(pNtk) );
     // cleanup the AIG
     Abc_AigCleanup((Abc_Aig_t *)pNtk->pManFunc);
@@ -368,6 +371,7 @@ int Abc_NtkRefactor( Abc_Ntk_t * pNtk, int nNodeSizeMax, int nMinSaved, int nCon
         // stop if all nodes have been tried once
         if ( i >= nNodes )
             break;
+        printf( "Node %d Ptr %p\n", pNode->Id, pNode );
         // compute a reconvergence-driven cut
 clk = Abc_Clock();
         vFanins = Abc_NodeFindCut( pManCut, pNode, fUseDcs );
@@ -378,6 +382,10 @@ clk = Abc_Clock();
 pManRef->timeRes += Abc_Clock() - clk;
         if ( pFForm == NULL )
             continue;
+        printf("    Before update\n");
+        Abc_NtkForEachNode( pNtk, pNodeTemp, j ) {
+            printf( "    Node %d Ptr %p: Fanins %d %d\n", pNodeTemp->Id, pNodeTemp, Abc_ObjFanin0(pNodeTemp)->Id, Abc_ObjFanin1(pNodeTemp)->Id );
+        }
         // acceptable replacement found, update the graph
 clk = Abc_Clock();
         if ( !Dec_GraphUpdateNetwork( pNode, pFForm, fUpdateLevel, pManRef->nLastGain ) )
@@ -388,6 +396,10 @@ clk = Abc_Clock();
         }
 pManRef->timeNtk += Abc_Clock() - clk;
         Dec_GraphFree( pFForm );
+        printf("    After update\n");
+        Abc_NtkForEachNode( pNtk, pNodeTemp, j ) {
+            printf( "    Node %d Ptr %p: Fanins %d %d\n", pNodeTemp->Id, pNodeTemp, Abc_ObjFanin0(pNodeTemp)->Id, Abc_ObjFanin1(pNodeTemp)->Id );
+        }
     }
     Extra_ProgressBarStop( pProgress );
 pManRef->timeTotal = Abc_Clock() - clkStart;
@@ -399,8 +411,12 @@ pManRef->timeTotal = Abc_Clock() - clkStart;
     // delete the managers
     Abc_NtkManCutStop( pManCut );
     Abc_NtkManRefStop( pManRef );
+    printf("After refactor\n");
+    Abc_NtkForEachNode( pNtk, pNodeTemp, j ) {
+        printf( "    Node %d Ptr %p: Fanins %d %d\n", pNodeTemp->Id, pNodeTemp, Abc_ObjFanin0(pNodeTemp)->Id, Abc_ObjFanin1(pNodeTemp)->Id );
+    }
     // put the nodes into the DFS order and reassign their IDs
-    Abc_NtkReassignIds( pNtk );
+    // Abc_NtkReassignIds( pNtk );
 //    Abc_AigCheckFaninOrder( pNtk->pManFunc );
     if ( RetValue != -1 )
     {
@@ -415,6 +431,10 @@ pManRef->timeTotal = Abc_Clock() - clkStart;
             printf( "Abc_NtkRefactor: The network check has failed.\n" );
             return 0;
         }
+    }
+    printf("Abc_NtkReassignIds\n");
+    Abc_NtkForEachNode( pNtk, pNodeTemp, j ) {
+        printf( "    Node %d Ptr %p: Fanins %d %d\n", pNodeTemp->Id, pNodeTemp, Abc_ObjFanin0(pNodeTemp)->Id, Abc_ObjFanin1(pNodeTemp)->Id );
     }
     return RetValue;
 }

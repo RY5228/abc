@@ -121,6 +121,8 @@ Rwr_ManAddTimeCuts( pManRwr, Abc_Clock() - clk );
         if ( Abc_ObjFanoutNum(pNode) > 1000 )
             continue;
 
+        printf( "Node %d Ptr %p\n", pNode->Id, pNode );
+
         // for each cut, try to resynthesize it
         nGain = Rwr_NodeRewrite( pManRwr, pManCut, pNode, fUpdateLevel, fUseZeros, fPlaceEnable );
         if ( !(nGain > 0 || (nGain == 0 && fUseZeros)) )
@@ -174,7 +176,7 @@ Rwr_ManAddTimeTotal( pManRwr, Abc_Clock() - clkStart );
     // put the nodes into the DFS order and reassign their IDs
     {
 //        abctime clk = Abc_Clock();
-    Abc_NtkReassignIds( pNtk );
+    // Abc_NtkReassignIds( pNtk );
 //        ABC_PRT( "time", Abc_Clock() - clk );
     }
 //    Abc_AigCheckFaninOrder( pNtk->pManFunc );

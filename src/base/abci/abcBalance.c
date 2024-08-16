@@ -118,6 +118,7 @@ void Abc_NtkBalancePerform( Abc_Ntk_t * pNtk, Abc_Ntk_t * pNtkAig, int fDuplicat
     {
         Abc_NtkForEachCo( pNtk, pNode, i )
         {
+            // printf( "Balancing CO %d, name %s\n", i, Abc_ObjName(pNode) );
             Extra_ProgressBarUpdate( pProgress, i, NULL );
             Abc_NodeBalance_rec( pNtkAig, Abc_ObjFanin0(pNode), vStorage, 0, fDuplicate, fSelective, fUpdateLevel );
         }
@@ -238,8 +239,11 @@ void Abc_NodeBalancePermute( Abc_Ntk_t * pNtkNew, Vec_Ptr_t * vSuper, int LeftBo
   SeeAlso     []
 
 ***********************************************************************/
+// static int Abc_NodeBalance_cnt = 0;
 Abc_Obj_t * Abc_NodeBalance_rec( Abc_Ntk_t * pNtkNew, Abc_Obj_t * pNodeOld, Vec_Vec_t * vStorage, int Level, int fDuplicate, int fSelective, int fUpdateLevel )
 {
+    // printf("Abc_NodeBalance_rec %d Level %d pNodeOld Id %d -----------------------\n", Abc_NodeBalance_cnt++, Level, pNodeOld->Id );
+    // Abc_Obj_t * pNodeNew, * pNode1, * pNode2, *pNodeTemp;
     Abc_Aig_t * pMan = (Abc_Aig_t *)pNtkNew->pManFunc;
     Abc_Obj_t * pNodeNew, * pNode1, * pNode2;
     Vec_Ptr_t * vSuper;
@@ -252,6 +256,13 @@ Abc_Obj_t * Abc_NodeBalance_rec( Abc_Ntk_t * pNtkNew, Abc_Obj_t * pNodeOld, Vec_
     // get the implication supergate
 //    Abc_NodeBalanceConeExor( pNodeOld );
     vSuper = Abc_NodeBalanceCone( pNodeOld, vStorage, Level, fDuplicate, fSelective );
+    // printf("Abc_NodeBalanceCone ---------------------\n");
+    // Vec_PtrForEachEntryReverse( Abc_Obj_t *, vSuper, pNodeTemp, i ) {
+    //     pNodeTemp = Abc_ObjRegular(pNodeTemp);
+    //     printf("NodePtr %p, ", pNodeTemp);
+    //     printf( "Node %d, level %d\n", pNodeTemp->Id, pNodeTemp->Level );
+    // }
+    // printf("\n");
     if ( vSuper->nSize == 0 )
     { // it means that the supergate contains two nodes in the opposite polarity
         pNodeOld->pCopy = Abc_ObjNot(Abc_AigConst1(pNtkNew));
@@ -267,6 +278,13 @@ Abc_Obj_t * Abc_NodeBalance_rec( Abc_Ntk_t * pNtkNew, Abc_Obj_t * pNodeOld, Vec_
         printf( "BUG!\n" );
     // sort the new nodes by level in the decreasing order
     Vec_PtrSort( vSuper, (int (*)(const void *, const void *))Abc_NodeCompareLevelsDecrease );
+    // printf("Vec_PtrSort ---------------------\n");
+    // Vec_PtrForEachEntryReverse( Abc_Obj_t *, vSuper, pNodeTemp, i ) {
+    //     pNodeTemp = Abc_ObjRegular(pNodeTemp);
+    //     printf("NodePtr %p, ", pNodeTemp);
+    //     printf( "Node %d, level %d\n", pNodeTemp->Id, pNodeTemp->Level );
+    // }
+    // printf("\n");
     // balance the nodes
     assert( vSuper->nSize > 1 );
     while ( vSuper->nSize > 1 )
@@ -275,6 +293,13 @@ Abc_Obj_t * Abc_NodeBalance_rec( Abc_Ntk_t * pNtkNew, Abc_Obj_t * pNodeOld, Vec_
         LeftBound = (!fUpdateLevel)? 0 : Abc_NodeBalanceFindLeft( vSuper );
         // find the node that can be shared (if no such node, randomize choice)
         Abc_NodeBalancePermute( pNtkNew, vSuper, LeftBound );
+        // printf("    Abc_NodeBalancePermute ---------------------\n");
+        // Vec_PtrForEachEntryReverse( Abc_Obj_t *, vSuper, pNodeTemp, i ) {
+        //     pNodeTemp = Abc_ObjRegular(pNodeTemp);
+        //     printf("    NodePtr %p, ", pNodeTemp);
+        //     printf( "Node %d, level %d\n", pNodeTemp->Id, pNodeTemp->Level );
+        // }
+        // printf("\n");
         // pull out the last two nodes
         pNode1 = (Abc_Obj_t *)Vec_PtrPop(vSuper);
         pNode2 = (Abc_Obj_t *)Vec_PtrPop(vSuper);

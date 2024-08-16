@@ -358,11 +358,11 @@ void Abc_ShowFile( char * FileNameDot, int fKeepDot )
 
     // create the PostScript file name
     FileGeneric = Extra_FileNameGeneric( FileNameDot );
-    sprintf( FileNamePs,  "%s.ps",  FileGeneric ); 
+    sprintf( FileNamePs,  "%s.pdf",  FileGeneric ); 
     ABC_FREE( FileGeneric );
 
     // generate the PostScript file using DOT
-    sprintf( CommandDot,  "%s -Tps -o %s %s", pDotName, FileNamePs, FileNameDot ); 
+    sprintf( CommandDot,  "%s -Tpdf -o %s %s", pDotName, FileNamePs, FileNameDot ); 
 #if defined(__wasm)
     RetValue = -1;
 #else
@@ -381,7 +381,7 @@ void Abc_ShowFile( char * FileNameDot, int fKeepDot )
     }
     fclose( pFile ); 
 
-
+    /*
     // get GSVIEW names from the resource file
     if ( Abc_FrameReadFlag("gsviewwin") )
         pGsNameWin = Abc_FrameReadFlag("gsviewwin");
@@ -416,6 +416,7 @@ void Abc_ShowFile( char * FileNameDot, int fKeepDot )
         }
     }
 #endif
+    */
 }
 
 /**Function*************************************************************
